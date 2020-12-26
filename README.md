@@ -1,2 +1,2 @@
-# web_scrapper
+# Web Scrapper
 Web Scrapping using Python and selenium
