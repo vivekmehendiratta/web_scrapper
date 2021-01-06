@@ -127,3 +127,16 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Credentials file
+creds.py
+
+# exe file
+*.exe
+
+#ipynb files
+*.ipynb
+*.ipynb_checkpoints
+
+# profiles json
+*.json
