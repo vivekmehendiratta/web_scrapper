@@ -9,7 +9,7 @@ import time
 
 import re
 
-import creds
+import secrets
 
 def remove_nf_numbers(text):
     text = re.sub(r"[(][\d]{1,2}[)]", '', text)
@@ -38,8 +38,6 @@ class Linkedin:
     
     def search_profile(self, profile_name):
         bot = self.bot
-        # search = bot.find_element_by_class_name('search-global-typeahead__input always-show-placeholder')
-        # search = bot.find_element_by_id("ember20")
         search = bot.find_element_by_css_selector("input[placeholder='Search']")
         time.sleep(3)
         search.click()
@@ -47,19 +45,15 @@ class Linkedin:
         time.sleep(3)
         search.send_keys(Keys.RETURN)
         time.sleep(10)
-        # search_button = bot.find_element_by_class_name('search-global-typeahead__search-icon')
-        # search_button.click()
-        # print('Success')
+        
 
         profile_list = bot.find_elements_by_xpath("//div[@class='search-results-container']//ul//li//a[@href]")
-        # print(profile_list)
+        
         time.sleep(5)
 
         link_to_profile = profile_list[0].get_attribute('href')
 
-        # for profile in profile_list:
-        #     profile.get_attribute('href')
-        #     # print(profile.get_attribute("href"))
+        
 
         return link_to_profile
 
@@ -83,13 +77,13 @@ class Linkedin:
     def scroll_down(self):
         bot = self.bot
 
-        SCROLL_PAUSE_TIME = 1
+        SCROLL_PAUSE_TIME = 3
 
         # Get scroll height
         last_height = bot.execute_script("return document.body.scrollHeight")
 
-        i = 200
-        while i > 0:
+        i = 1000
+        while i>0:
             # Scroll down to bottom
             bot.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
@@ -128,7 +122,6 @@ class Linkedin:
 
         note = f"Hi {name},\n" + note
 
-        # print(note)
 
         try:
             WebDriverWait(bot, 20).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()

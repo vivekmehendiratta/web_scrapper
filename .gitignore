@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # Credentials file
-creds.py
+secrets.py
 
 # exe file
 *.exe
@@ -139,4 +139,8 @@ creds.py
 *.ipynb_checkpoints
 
 # profiles json
-*.json
+/LinkedIn/connectionBot/profiles.json
+
+#College Urls and notes to connection
+/LinkedIn/connectionBot/notes.py
+/LinkedIn/connectionBot/college_urls.py
