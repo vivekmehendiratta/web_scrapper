@@ -127,3 +127,20 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Credentials file
+secrets.py
+
+# exe file
+*.exe
+
+#ipynb files
+*.ipynb
+*.ipynb_checkpoints
+
+# profiles json
+/LinkedIn/connectionBot/profiles.json
+
+#College Urls and notes to connection
+/LinkedIn/connectionBot/notes.py
+/LinkedIn/connectionBot/college_urls.py
