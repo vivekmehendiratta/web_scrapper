@@ -144,3 +144,4 @@ secrets.py
 #College Urls and notes to connection
 /LinkedIn/connectionBot/notes.py
 /LinkedIn/connectionBot/college_urls.py
+hashtags.py

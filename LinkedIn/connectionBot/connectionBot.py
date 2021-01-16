@@ -17,7 +17,7 @@ load.login()
 
 # load.search_people()
 
-load.go_to_profile(profileURL=college_urls.gtech)
+load.go_to_profile(profileURL=college_urls.usc)
 
 load.scroll_down()
 
