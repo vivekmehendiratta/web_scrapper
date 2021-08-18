@@ -1,4 +1,5 @@
 from selenium import webdriver
+
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait       
 from selenium.webdriver.common.by import By       
@@ -11,8 +12,9 @@ import re
 
 import secrets
 
-def remove_nf_numbers(text):
+def clean_title(text):
     text = re.sub(r"[(][\d]{1,2}[)]", '', text)
+    text = re.sub(r'(^\w{2,3}\. ?)', r'', text)
     return text
 
 class Linkedin:
@@ -53,10 +55,9 @@ class Linkedin:
 
         link_to_profile = profile_list[0].get_attribute('href')
 
-        
-
         return link_to_profile
 
+    
     def go_to_profile(self, profileURL):
         bot = self.bot
         bot.get(profileURL) 
@@ -74,7 +75,7 @@ class Linkedin:
         time.sleep(3)
         return
 
-    def scroll_down(self):
+    def scroll_down(self, scroll_counter=1000):
         bot = self.bot
 
         SCROLL_PAUSE_TIME = 3
@@ -82,7 +83,7 @@ class Linkedin:
         # Get scroll height
         last_height = bot.execute_script("return document.body.scrollHeight")
 
-        i = 1000
+        i = scroll_counter
         while i>0:
             # Scroll down to bottom
             bot.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -103,7 +104,9 @@ class Linkedin:
     def get_all_profiles(self):
         bot = self.bot
 
-        xpath = "//ul[@class='org-people-profiles-module__profile-list']//a"
+        # xpath = "//ul[@class='org-people-profiles-module__profile-list']//a"
+
+        xpath = ".//ul[@class='display-flex list-style-none flex-wrap']//a"
 
         grid_list = bot.find_elements_by_xpath(xpath)
         
@@ -111,44 +114,130 @@ class Linkedin:
         time.sleep(3)
         return list(set(profiles))
     
+    def checkConnection(self):
+        bot = self.bot
+        # follow_xpath = ".//div[@class='display-flex']//button//*[contains(.,'Follow')]"
+        # connect_xpath = ".//div[@class='display-flex']//button//*[contains(.,'Connect')]"
+        # pending_xpath = ".//div[@class='display-flex']//button//*[contains(.,'Pending')]"
+        # message_xpath = ".//div[@class='display-flex']//button//*[@type='lock-icon']//*[contains(.,'Message')]"
+        # message_xpath_connected = ".//div[@class='display-flex']//*[contains(.,'Message')]"
+
+        follow_xpath = ".//div[contains(@class,'display-flex')]//button//*[contains(.,'Follow')]"
+        connect_xpath = ".//div[contains(@class,'display-flex')]//button//*[contains(.,'Connect')]"
+        pending_xpath = ".//div[contains(@class,'display-flex')]//button//*[contains(.,'Pending')]"
+        message_xpath = ".//div[contains(@class,'display-flex')]//button//*[@type='lock-icon']"
+        message_xpath_connected = ".//div[contains(@class,'display-flex')]//*[contains(.,'Message')]"
+
+        try:
+            
+            follow_element = bot.find_element_by_xpath(follow_xpath)
+            if follow_element.text == 'Follow':
+                print('Found follow element')
+                return 'follow'
+        except Exception as e:
+            try:
+                
+                ele = bot.find_element_by_xpath(pending_xpath)
+                if ele.text == 'Pending':
+                    print('Found pending element')
+                    return 'pending'
+            except Exception as e:
+                try:
+                    
+                    ele = bot.find_element_by_xpath(connect_xpath)
+                    if ele.text == 'Connect':
+                        print('found connect element')
+                        return 'connect'
+                except Exception:
+                    try:
+                        
+                        ele = bot.find_element_by_xpath(message_xpath)
+                        print("found locked message")
+                        if ele.text == 'Message':
+                            return 'locked'
+                    except Exception as e:
+                        try:
+                            ele = bot.find_element_by_xpath(message_xpath_connected)
+                            print('profile connected, returning True')
+                            return 'connected'
+                        except Exception as e:
+                            print(e)
+        return 'error'
+
     def connect_to_profile(self, note = ''):
         bot = self.bot
         
-        xpath = "//main[@class='core-rail']//section[@class='pv-top-card artdeco-card ember-view']//div[@class='display-flex']//button//span"
+
+        # xpath = "//main[@class='core-rail']//section[@class='pv-top-card artdeco-card ember-view']//div[@class='display-flex']//button//span"
+        xpath = ".//div[contains(@class,'display-flex')]//button//*[contains(.,'Connect')]"
 
         title = bot.title
-        title = remove_nf_numbers(title)
+        title = clean_title(title)
         name = title.split("|")[0].strip()
+        name = name.split()[0].strip().title()
 
         note = f"Hi {name},\n" + note
-
 
         try:
             WebDriverWait(bot, 20).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
             time.sleep(2)
             
-            add_note_xpath = "//button[@aria-label='Add a note']"
+            add_note_xpath = ".//button[@aria-label='Add a note']"
             WebDriverWait(bot, 20).until(EC.element_to_be_clickable((By.XPATH, add_note_xpath))).click()
             time.sleep(2)
 
-            message_area_path = "//div[@class='relative']//textarea[@name='message']"
+            message_area_path = ".//div[contains(@class,'relative')]//textarea[contains(@name,'message')]"
             message_area = bot.find_element_by_xpath(message_area_path)
             message_area.send_keys(note)
+            time.sleep(2)
 
-            send_xpath = "//button[@aria-label='Send now']"
+            send_xpath = ".//button[@aria-label='Send now']"
             WebDriverWait(bot, 20).until(EC.element_to_be_clickable((By.XPATH, send_xpath))).click()
             time.sleep(2)
 
         except ElementClickInterceptedException:
+            print('ElementClickInterceptedException')
             time.sleep(2)
             return 'fail'
 
         except TimeoutException:
+            print('TimeoutException')
             time.sleep(2)
             return 'fail'
         
         except WebDriverException:
+            print('WebDriverException')
             time.sleep(2)
             return 'web driver exception'
         
         return 'success'
+
+    def connect_to_profile_again(self, note = ''):
+        bot = self.bot
+        
+        xpath = "//section[@class='pv-top-card artdeco-card ember-view']//div[@class='display-flex']//div[@class='artdeco-dropdown__content-inner']//*[contains(.,'Connect')]"
+
+        element = bot.find_element_by_xpath(xpath)
+        bot.execute_script("arguments[0].click();", element)
+        # element.click()
+
+        title = bot.title
+        title = clean_title(title)
+        name = title.split("|")[0].strip()
+        name = name.split()[0].strip()
+
+        note = f"Hi {name},\n" + note
+
+        # WebDriverWait(bot, 20).until(EC.element_to_be_clickable((By.XPATH, xpath))).click()
+        # time.sleep(2)
+
+
+        return
+
+    def end_session(self):
+        bot = self.bot
+
+        bot.quit()
+        return
+    
+    
