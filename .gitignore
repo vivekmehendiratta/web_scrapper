@@ -140,8 +140,10 @@ secrets.py
 
 # profiles json
 /LinkedIn/connectionBot/profiles.json
+/LinkedIn/connectionBot/profiles_db.json
 
 #College Urls and notes to connection
 /LinkedIn/connectionBot/notes.py
 /LinkedIn/connectionBot/college_urls.py
+/LinkedIn/connectionBot/company_urls.py
 hashtags.py
