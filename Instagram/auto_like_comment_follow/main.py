@@ -24,15 +24,12 @@ session.login()
 # set up all the settings
 session.set_do_comment(True, percentage=75)
 session.set_comments(hashtags.comments)
-session.set_do_follow(enabled=True, percentage=60, times=2)
+# session.set_do_follow(enabled=True, percentage=60, times=2)
 session.set_user_interact(amount=19, percentage=100, media='Photo')
 
 # do the actual liking
-session.like_by_tags(hashtags.hashtag_2, amount=10)
+session.like_by_tags(hashtags.hashtag_1, amount=10)
 
 # end the bot session
-
-session.end()
-
 session.end()
 
