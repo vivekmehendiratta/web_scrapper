@@ -58,20 +58,27 @@ def connectWithProfileList(connection_note, profiles_file_name):
     load = Linkedin(secrets.username, secrets.password, secrets.path_to_driver)
     load.login()
 
+    print("Login success........................")
+
     with open(profiles_file_name) as infile:
         resp_dict = json.load(infile)
+    
+    print(len(resp_dict), "records received ...........................")
 
     for k, v in resp_dict.items():
         profile = k
-        if v == 'fail':
+        if v == 'not connected' or v=='fail':
+            print("profile :", k)
             load.go_to_profile(profileURL=profile)
             res = load.checkConnection()
+            if (res == 'pending') or (res == 'connected'):
+                resp_dict[profile] = 'success'
+            elif (res == 'locked') or (res == 'follow'):
+                resp_dict[profile] = 'fail'
             if res:
                 resp_dict[profile] = 'success'
-            if res == False:
+            if res == 'connect':
                 res = load.connect_to_profile(note=connection_note)
-
-                print(res)
                 if res == 'web driver exception':
                     break
 
@@ -80,8 +87,8 @@ def connectWithProfileList(connection_note, profiles_file_name):
 
                 resp_dict[profile] = res
 
-        with open(profiles_file_name, 'w') as outfile:
-            json.dump(resp_dict, outfile)
+    with open(profiles_file_name, 'w') as outfile:
+        json.dump(resp_dict, outfile)
 
     load.end_session()
     print('session ended')
@@ -154,3 +161,7 @@ connectWithProfileList(connection_note = notes.rest_updated, profiles_file_name=
 #                  urls=urls,
 #                  scroll_counter=50,
 #                  json_file='profiles_db.json')
+
+## Connect with new alumni profiles
+
+# connectWithNewProfiles(load = load, connection_note = notes.rest_updated, profiles_file_name='profiles_db.json')
